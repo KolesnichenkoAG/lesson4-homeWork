@@ -1,0 +1,268 @@
+Дз выполнял в MySQL Workbench
+
+сначала создал схему cinema
+
+создание таблицы movies
+CREATE TABLE `cinema`.`movies` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(150) NOT NULL,
+  `duration` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);
+
+создание таблицы halls
+CREATE TABLE `cinema`.`halls` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `hall_name` VARCHAR(50) NOT NULL,
+    `description` VARCHAR(150) NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);
+
+создание таблицы seats
+CREATE TABLE `cinema`.`seats` (
+      `id` INT NOT NULL AUTO_INCREMENT,
+      `hall_id` INT NOT NULL,
+      `row_num` INT NOT NULL,
+      `seat_num` INT NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+      INDEX `fk_seats_halls_idx` (`hall_id` ASC) VISIBLE,
+CONSTRAINT `fk_seats_halls`
+        FOREIGN KEY (`hall_id`)
+        REFERENCES `cinema`.`halls` (`id`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION);
+
+создание таблицы sessions
+CREATE TABLE `cinema`.`sessions` (
+          `id` INT NOT NULL AUTO_INCREMENT,
+          `movie_id` INT NOT NULL,
+          `hall_id` INT NOT NULL,
+          `session_date` DATE NOT NULL,
+          `session_time` TIME NOT NULL,
+          PRIMARY KEY (`id`),
+          INDEX `fk_sessions_halls_idx` (`hall_id` ASC) VISIBLE,
+          INDEX `fk_sessions_movies_idx` (`movie_id` ASC) VISIBLE,
+CONSTRAINT `fk_sessions_halls`
+            FOREIGN KEY (`hall_id`)
+            REFERENCES `cinema`.`halls` (`id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+CONSTRAINT `fk_sessions_movies`
+            FOREIGN KEY (`movie_id`)
+            REFERENCES `cinema`.`movies` (`id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION);
+
+создание таблицы prices
+CREATE TABLE `cinema`.`prices` (
+              `id` INT NOT NULL AUTO_INCREMENT,
+              `session_id` INT NOT NULL,
+              `price` DECIMAL(8,2) NOT NULL,
+              PRIMARY KEY (`id`),
+              UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+              INDEX `fk_prices_sessions_idx` (`session_id` ASC) VISIBLE,
+CONSTRAINT `fk_prices_sessions`
+                FOREIGN KEY (`session_id`)
+                REFERENCES `cinema`.`sessions` (`id`)
+                ON DELETE NO ACTION
+                ON UPDATE NO ACTION);
+
+создание таблицы tickets
+CREATE TABLE `cinema`.`tickets` (
+`id` INT NOT NULL AUTO_INCREMENT,
+        `session_id` INT NOT NULL,
+        `seat_id` INT NOT NULL,
+        `sold_out` TINYINT NOT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+        INDEX `fk_tickets_sessions_idx` (`session_id` ASC) VISIBLE,
+        INDEX `fk_tickets_seats_idx` (`seat_id` ASC) VISIBLE,
+CONSTRAINT `fk_tickets_sessions`
+          FOREIGN KEY (`session_id`)
+          REFERENCES `cinema`.`sessions` (`id`)
+          ON DELETE NO ACTION
+          ON UPDATE NO ACTION,
+CONSTRAINT `fk_tickets_seats`
+          FOREIGN KEY (`seat_id`)
+          REFERENCES `cinema`.`seats` (`id`)
+          ON DELETE NO ACTION
+          ON UPDATE NO ACTION);
+
+Потом заполняем таблицы:
+
+INSERT INTO `cinema`.`halls` (`hall_name`, `description`) VALUES
+('Синий зал', 'малый зал - 20 мест'),
+('Красный зал', 'большой зал - 40 мест');
+
+INSERT INTO `cinema`.`movies` (`title`, `duration`) VALUES
+('Город ангела', 125),
+('Армагедон', 140),
+('Командос', 90),
+('5 элемент', 120),
+('Зеленая миля', 126);
+
+INSERT INTO `cinema`.`seats` (`hall_id`, `row_num`, `seat_num`) VALUES
+(1, 1, 1), (1, 1, 2), (1, 1, 3), (1, 1, 4), (1, 1, 5),
+(1, 2, 1), (1, 2, 2), (1, 2, 3), (1, 2, 4), (1, 2, 5),
+(1, 3, 1), (1, 3, 2), (1, 3, 3), (1, 3, 4), (1, 3, 5),
+(1, 4, 1), (1, 4, 2), (1, 4, 3), (1, 4, 4), (1, 4, 5),
+(2, 1, 1), (2, 1, 2), (2, 1, 3), (2, 1, 4), (2, 1, 5), (2, 1, 6), (2, 1, 7), (2, 1, 8),
+(2, 2, 1), (2, 2, 2), (2, 2, 3), (2, 2, 4), (2, 2, 5), (2, 2, 6), (2, 2, 7), (2, 2, 8),
+(2, 3, 1), (2, 3, 2), (2, 3, 3), (2, 3, 4), (2, 3, 5), (2, 3, 6), (2, 3, 7), (2, 3, 8),
+(2, 4, 1), (2, 4, 2), (2, 4, 3), (2, 4, 4), (2, 4, 5), (2, 4, 6), (2, 4, 7), (2, 4, 8),
+(2, 5, 1), (2, 5, 2), (2, 5, 3), (2, 5, 4), (2, 5, 5), (2, 5, 6), (2, 5, 7), (2, 5, 8);
+
+INSERT INTO `cinema`.`sessions` (`movie_id`, `hall_id`, `session_date`, `session_time`) VALUES
+(1, 1, '2023-05-14', '09:00'),
+(1, 1, '2023-05-14', '10:00'),
+(2, 1, '2023-05-14', '12:00'),
+(2, 1, '2023-05-14', '16:00'),
+(3, 2, '2023-05-14', '09:00'),
+(3, 2, '2023-05-14', '09:30'),
+(4, 2, '2023-05-14', '13:00'),
+(4, 2, '2023-05-14', '17:00'),
+(5, 2, '2023-05-14', '20:00'),
+(5, 2, '2023-05-14', '23:00');
+
+INSERT INTO `cinema`.`prices` (`session_id`, `price`) VALUES
+(1, 500.00),
+(2, 700.00),
+(3, 1000.00),
+(4, 1200.00),
+(5, 500.00),
+(6, 600.00),
+(7, 1000.00),
+(8, 1300.00),
+(9, 1500.00),
+(10, 2500.00);
+
+INSERT INTO `cinema`.`tickets` (`session_id`, `seat_id`, `sold_out`) VALUES
+(1, 12, 1), (1, 13, 1), (1, 14, 1), (1, 15, 1), (1, 16, 1), (1, 17, 1), (1, 18, 1),
+(2, 6, 1), (2, 7, 1), (2, 8, 1), (2, 10, 1), (2, 11, 1), (2, 12, 1), (2, 13, 1),
+(3, 12, 1), (3, 13, 1), (3, 14, 1), (3, 15, 1),
+(4, 10, 1), (4, 11, 1), (4, 12, 1), (4, 13, 1), (4, 14, 1), (4, 15, 1), (4, 16, 1), (4, 17, 1), (4, 18, 1), (4, 19, 1),
+(5, 21, 1), (5, 22, 1), (5, 23, 1), (5, 24, 1), (5, 25, 1), (5, 30, 1), (5, 26, 1), (5, 27, 1), (5, 28, 1), (5, 29, 1),
+(6, 21, 1), (6, 22, 1), (6, 23, 1), (6, 24, 1), (6, 25, 1),
+(7, 21, 1), (7, 22, 1), (7, 23, 1), (7, 24, 1), (7, 25, 1), (7, 30, 1), (7, 26, 1), (7, 27, 1), (7, 28, 1), (7, 29, 1),
+(8, 31, 1), (8, 32, 1), (8, 33, 1), (8, 34, 1), (8, 35, 1), (8, 30, 1), (8, 36, 1), (8, 37, 1), (8, 38, 1), (8, 39, 1),
+(9, 21, 1), (9, 22, 1), (9, 23, 1), (9, 24, 1), (9, 25, 1),
+(10, 31, 1), (10, 32, 1), (10, 33, 1), (10, 34, 1), (10, 35, 1), (10, 36, 1), (10, 37, 1), (10, 38, 1), (10, 39, 1), (10, 40, 1);
+
+Запрос по первому пункту:
+
+SELECT t1.title, t1.session_date, t1.session_time, t1.duration, t2.title, t2.session_date, t2.session_time, t2.duration
+FROM (
+  SELECT s.id, s.hall_id, m.title, s.session_date, s.session_time, m.duration,
+         TIMESTAMP(s.session_date, s.session_time) AS starts_at,
+         TIMESTAMPADD(MINUTE, m.duration, TIMESTAMP(s.session_date, s.session_time)) AS ends_at
+  FROM sessions s
+  JOIN movies m ON s.movie_id = m.id) AS t1
+JOIN (
+  SELECT s.id, s.hall_id, m.title, s.session_date, s.session_time, m.duration,
+         TIMESTAMP(s.session_date, s.session_time) AS starts_at,
+         TIMESTAMPADD(MINUTE, m.duration, TIMESTAMP(s.session_date, s.session_time)) AS ends_at
+  FROM sessions s
+  JOIN movies m ON s.movie_id = m.id) AS t2
+WHERE t1.starts_at BETWEEN t2.starts_at AND t2.ends_at AND
+      t1.id <> t2.id AND
+      t1.hall_id = t2.hall_id
+ORDER BY t1.session_date ASC, t1.session_time ASC;
+
+результат:
+
+# title, session_date, session_time, duration, title, session_date, session_time, duration
+'Командос', '2023-05-14', '09:30:00', '90', 'Командос', '2023-05-14', '09:00:00', '90'
+'Город ангела', '2023-05-14', '10:00:00', '125', 'Город ангела', '2023-05-14', '09:00:00', '125'
+'Армагедон', '2023-05-14', '12:00:00', '140', 'Город ангела', '2023-05-14', '10:00:00', '125'
+
+По второму пункту:
+
+SET @checked_hall_id = 2;
+SELECT * FROM (
+  WITH timestamps_table AS (
+  SELECT s.id, s.hall_id, m.title, s.session_date, s.session_time, m.duration,
+         TIMESTAMP(s.session_date, s.session_time) AS starts_at,
+         TIMESTAMPADD(MINUTE, m.duration, TIMESTAMP(s.session_date, s.session_time)) AS ends_at
+  FROM sessions s
+  JOIN movies m ON s.movie_id = m.id
+  WHERE s.hall_id = @checked_hall_id
+  ORDER BY s.session_date ASC, s.session_time ASC)
+  SELECT tt.title, tt.starts_at, tt.duration,
+       LEAD(starts_at, 1) OVER () next_session_starts_at,
+       TIMESTAMPDIFF(MINUTE, ends_at, LEAD(starts_at, 1) OVER ()) minutes_between_sessions,
+       CASE
+           WHEN TIMESTAMPDIFF(MINUTE, ends_at, LEAD(starts_at, 1) OVER ()) < 0
+		        THEN 'Наложение сеансов'
+           WHEN TIMESTAMPDIFF(MINUTE, ends_at, LEAD(starts_at, 1) OVER ()) = 0
+                THEN 'Нет перерыва'
+           WHEN TIMESTAMPDIFF(MINUTE, ends_at, LEAD(starts_at, 1) OVER ()) >= 30
+                THEN 'Длинный перерыв'
+       END AS error_comment
+  FROM timestamps_table tt) AS result_table
+  WHERE minutes_between_sessions <=0 OR minutes_between_sessions >=30;
+
+  результат:
+
+  # title,              starts_at,        duration,    next_session_starts_at,     minutes_between_sessions,   error_comment
+  'Командос'     '2023-05-14 09:00:00'     '90'       '2023-05-14 09:30:00'        '-60'                       'Наложение сеансов'
+  'Командос'     '2023-05-14 09:30:00'     '90'       '2023-05-14 13:00:00'        '120'                       'Длинный перерыв'
+  '5 элемент'    '2023-05-14 13:00:00'     '120'      '2023-05-14 17:00:00'        '120'                       'Длинный перерыв'
+  '5 элемент'    '2023-05-14 17:00:00'     '120'      '2023-05-14 20:00:00'        '60'                        'Длинный перерыв'
+  'Зеленая миля' '2023-05-14 20:00:00'     '126'      '2023-05-14 23:00:00'        '54'                        'Длинный перерыв'
+
+по третьему пункту
+
+(WITH tmp AS (
+  SELECT s.id, s.movie_id, SUM(p.price) total_sum, COUNT(t.id) viewers
+  FROM tickets t
+  JOIN sessions s ON s.id = t.session_id
+  JOIN prices p ON s.id = p.session_id
+  GROUP BY t.session_id)
+SELECT m.title, SUM(viewers) total_viewers,
+  FORMAT(AVG(viewers), 1) avg_per_session,
+  total_sum
+FROM tmp
+JOIN movies m ON m.id = tmp.movie_id
+GROUP BY movie_id
+ORDER BY total_sum DESC)
+
+UNION
+SELECT 'TOTAL', SUM(viewers), FORMAT(AVG(viewers), 1), SUM(total_sum)
+FROM tmp;
+
+результат:
+# title,           total_viewers,      avg_per_session,      total_sum
+'Город ангела',    '14',                  '7.0',             '3500.00'
+'Армагедон',       '14',                  '7.0',             '4000.00'
+'Командос',        '15',                  '7.5',             '5000.00'
+'5 элемент',       '20',                  '10.0',            '10000.00'
+'Зеленая миля',    '15',                  '7.5',             '7500.00'
+'TOTAL',           '78',                  '7.8',             '87900.00'
+
+по четвертому пункту
+
+SELECT m.title,
+       SUM(CASE WHEN s.session_time >= "09:00:00" AND s.session_time < "15:00:00" THEN 1 ELSE 0 END) AS "09_15_viewers",
+       SUM(CASE WHEN s.session_time >= "09:00:00" AND s.session_time < "15:00:00" THEN p.price ELSE 0 END) AS "09_15_fee",
+       SUM(CASE WHEN s.session_time >= "15:00:00" AND s.session_time < "18:00:00" THEN 1 ELSE 0 END) AS "15_18_viewers",
+       SUM(CASE WHEN s.session_time >= "15:00:00" AND s.session_time < "18:00:00" THEN p.price ELSE 0 END) AS "15_18_fee",
+       SUM(CASE WHEN s.session_time >= "18:00:00" AND s.session_time < "21:00:00" THEN 1 ELSE 0 END) AS "18_21_viewers",
+       SUM(CASE WHEN s.session_time >= "18:00:00" AND s.session_time < "21:00:00" THEN p.price ELSE 0 END) AS "18_21_fee",
+       SUM(CASE WHEN s.session_time >= "21:00:00" AND s.session_time <= "23:59:59" THEN 1 ELSE 0 END) AS "21_00_viewers",
+       SUM(CASE WHEN s.session_time >= "21:00:00" AND s.session_time <= "23:59:59" THEN p.price ELSE 0 END) AS "21_00_fee"
+FROM tickets t
+JOIN sessions s ON s.id = t.session_id
+JOIN prices p ON s.id = p.session_id
+JOIN movies m ON s.movie_id = m.id
+GROUP BY m.id;
+
+результат:
+
+# title,         09_15_viewers,  09_15_fee,   15_18_viewers,   15_18_fee,    18_21_viewers,   18_21_fee,   21_00_viewers,  21_00_fee
+'Город ангела',  '14',           '8400.00',   '0',             '0.00',       '0',             '0.00',      '0',             '0.00'
+'Армагедон',     '4',            '4000.00',   '10',            '12000.00',   '0',             '0.00',      '0',             '0.00'
+'Командос',      '15',           '8000.00',   '0',             '0.00',       '0',             '0.00',      '0',             '0.00'
+'5 элемент',     '10',           '10000.00',  '10',            '13000.00',   '0',             '0.00',      '0',             '0.00'
+'Зеленая миля',  '0',            '0.00',      '0',             '0.00',       '5',             '7500.00',   '10',            '25000.00'
+
